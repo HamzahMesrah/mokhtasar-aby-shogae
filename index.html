@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الخطيب الشربيني: رحلة عالم</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals -->
+    <!-- Application Structure Plan: تم تصميم التطبيق ليكون بمثابة لوحة معلومات تفاعلية بدلاً من مقال خطي. يبدأ بهوية العالم وأهم إنجازاته (نظرة عامة)، ثم ينتقل إلى أقسام متخصصة يمكن للمستخدم استكشافها بحرية عبر شريط التنقل: رحلته العلمية (شيوخه وتلاميذه)، وإرثه المكتوب (مؤلفاته) مع تصنيف تفاعلي ورسم بياني، وأخيراً مسار حياته (جدول زمني). هذا الهيكل يتيح للمستخدم الوصول السريع للمعلومة التي تهمه ويشجع على الاستكشاف والتفاعل بدلاً من القراءة السلبية، مما يعزز فهم وتقدير إسهامات العالم. -->
+    <!-- Visualization & Content Choices: 
+    - بطاقة التعريف والإحصائيات: الهدف: تقديم ملخص سريع. الطريقة: بطاقات بارزة. التفاعل: ثابت. المبرر: جذب انتباه المستخدم وتقديم أهم المعلومات فوراً.
+    - قائمة الشيوخ: الهدف: تنظيم شجرة علمه. الطريقة: بطاقات في أعمدة. التفاعل: تأثيرات عند المرور. المبرر: عرض شبكته العلمية بطريقة منظمة وواضحة.
+    - المؤلفات: الهدف: تنظيم ومقارنة إنتاجه. الطريقة: شبكة بطاقات قابلة للفلترة + رسم بياني دائري (Chart.js). التفاعل: النقر على أزرار الفلترة. المبرر: تمكين المستخدم من استكشاف أعماله حسب المجال، مع رؤية بصرية لتوزيع اهتماماته العلمية.
+    - مسار الحياة: الهدف: عرض التطور الزمني. الطريقة: خط زمني عمودي (HTML/CSS). التفاعل: تتبع بصري. المبرر: سرد قصة حياته بشكل تسلسلي وجذاب.
+    - Library/Method: Chart.js for the donut chart.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        .nav-link.active {
+            color: #c2410c; /* orange-600 */
+            font-weight: 700;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            top: 1rem;
+            right: -0.8rem;
+            transform: translateX(50%);
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background-color: #f97316; /* orange-500 */
+            border: 3px solid #fed7aa; /* orange-200 */
+        }
+    </style>
+</head>
+<body class="bg-amber-50 text-gray-800">
+
+    <header class="bg-white shadow-xl sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold text-orange-900">الخطيب الشربيني</h1>
+            <div class="hidden md:flex space-x-10 lg:space-x-12">
+            <div class="m1-20">
+            
+            </div>
+                <a href="#overview" class="nav-link text-gray-600 hover:text-orange-600 transition-colors duration-300 text-lg">نظرة عامة</a>
+                <a href="#journey" class="nav-link text-gray-600 hover:text-orange-600 transition-colors duration-300 text-lg">رحلته العلمية</a>
+                <a href="#works" class="nav-link text-gray-600 hover:text-orange-600 transition-colors duration-300 text-lg">مؤلفاته</a>
+                <a href="#timeline" class="nav-link text-gray-600 hover:text-orange-600 transition-colors duration-300 text-lg">جدول زمني</a>
+            </div>
+             <div class="md:hidden">
+                <select id="mobile-nav" class="bg-amber-50 border-2 border-orange-500 rounded-lg py-2 px-3 text-gray-700 appearance-none focus:outline-none focus:ring-2 focus:ring-orange-600">
+                    <option value="#overview">نظرة عامة</option>
+                    <option value="#journey">رحلته العلمية</option>
+                    <option value="#works">مؤلفاته</option>
+                    <option value="#timeline">جدول زمني</option>
+                </select>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="overview" class="text-center py-16">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-3xl md:text-5xl font-bold text-orange-900 mb-4">شمس الدين محمد بن أحمد الخطيب الشربيني</h2>
+                <p class="text-lg text-gray-600 mb-8">استكشاف تفاعلي لحياة وإرث أحد أبرز علماء الشافعية في القرن العاشر الهجري.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-amber-100">
+                        <h3 class="text-lg font-bold text-orange-800 mb-2">المذهب الفقهي</h3>
+                        <p class="text-2xl font-semibold text-gray-700">الشافعي</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-amber-100">
+                        <h3 class="text-lg font-bold text-orange-800 mb-2">أشهر مؤلفاته</h3>
+                        <p class="text-2xl font-semibold text-gray-700">مغني المحتاج</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-lg border border-amber-100">
+                        <h3 class="text-lg font-bold text-orange-800 mb-2">تاريخ الوفاة</h3>
+                        <p class="text-2xl font-semibold text-gray-700">977 هـ / 1570 م</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="journey" class="py-16">
+            <h2 class="text-3xl font-bold text-center text-orange-900 mb-4">رحلته العلمية</h2>
+            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-12">تلقى العلم على يد كبار علماء عصره في القاهرة، وأصبح هو نفسه منارة علمية يقصدها الطلاب من كل مكان، مما جعله حلقة وصل هامة في سلسلة نقل المعرفة الشرعية.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div>
+                    <h3 class="text-2xl font-bold text-center text-orange-800 mb-6">من أبرز شيوخه</h3>
+                    <div class="space-y-4">
+                        <div class="bg-white p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                            <p class="font-semibold text-lg text-gray-800">الإمام أحمد الرملي</p>
+                            <p class="text-sm text-gray-500">شيخ الإسلام وإمام عصره</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                            <p class="font-semibold text-lg text-gray-800">نور الدين المحلي</p>
+                            <p class="text-sm text-gray-500">الفقيه الشافعي المعروف</p>
+                        </div>
+                        <div class="bg-white p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                            <p class="font-semibold text-lg text-gray-800">شهاب الدين البرلسي "عميرة"</p>
+                            <p class="text-sm text-gray-500">صاحب الحاشية الشهيرة</p>
+                        </div>
+                         <div class="bg-white p-5 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300">
+                            <p class="font-semibold text-lg text-gray-800">ناصر الدين الطبلاوي</p>
+                            <p class="text-sm text-gray-500">العالم اللغوي والنحوي</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-center text-orange-800 mb-6">تلاميذه ومكانته</h3>
+                     <div class="bg-white p-5 rounded-lg shadow-md h-full flex flex-col justify-center">
+                        <p class="text-gray-700 leading-relaxed">
+                            أصبح الخطيب الشربيني مقصدًا لطلاب العلم، وتخرج على يديه عدد لا يحصى من العلماء الذين نشروا علمه في مختلف الأقطار. لم تقتصر دروسه على الفقه، بل شملت التفسير واللغة العربية وغيرها من العلوم، مما رسخ مكانته كعالم موسوعي وأحد أهم أركان المذهب الشافعي في عصره.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="works" class="py-16 bg-white rounded-2xl shadow-inner border border-amber-100">
+            <h2 class="text-3xl font-bold text-center text-orange-900 mb-4">إرثه العلمي: مؤلفاته</h2>
+            <p class="text-center text-gray-600 max-w-2xl mx-auto mb-8">ترك الإمام الخطيب الشربيني ثروة علمية غنية لا تزال مرجعًا للعلماء والباحثين حتى اليوم. تفاعل مع الأزرار أدناه لتصنيف أعماله حسب المجال العلمي.</p>
+            <div class="flex justify-center space-x-2 mb-10" id="filters">
+                <button class="filter-btn active bg-orange-500 text-white px-4 py-2 rounded-full" data-filter="all">الكل</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-full" data-filter="fiqh">فقه</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-full" data-filter="tafsir">تفسير</button>
+                <button class="filter-btn bg-gray-200 text-gray-700 px-4 py-2 rounded-full" data-filter="other">متنوع</button>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16" id="books-grid">
+            </div>
+
+            <div class="mt-12">
+                <h3 class="text-2xl font-bold text-center text-orange-800 mb-6">توزيع الإنتاج العلمي</h3>
+                <div class="chart-container">
+                    <canvas id="worksChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="timeline" class="py-16">
+            <h2 class="text-3xl font-bold text-center text-orange-900 mb-12">محطات في حياته</h2>
+            <div class="relative max-w-2xl mx-auto border-r-2 border-orange-300">
+                <div class="timeline-item mb-12 pl-8 pr-8 relative">
+                    <h3 class="text-xl font-bold text-orange-700">بداية القرن العاشر الهجري</h3>
+                    <p class="text-gray-600">ولد في شربين (ضمن محافظة الدقهلية حالياً) بمصر، ونشأ بها حافظًا للقرآن الكريم.</p>
+                </div>
+                <div class="timeline-item mb-12 pl-8 pr-8 relative">
+                    <h3 class="text-xl font-bold text-orange-700">الانتقال إلى القاهرة</h3>
+                    <p class="text-gray-600">ارتحل إلى القاهرة، حاضرة العلم في زمانه، لطلب العلم في الجامع الأزهر الشريف.</p>
+                </div>
+                <div class="timeline-item mb-12 pl-8 pr-8 relative">
+                    <h3 class="text-xl font-bold text-orange-700">فترة التحصيل العلمي</h3>
+                    <p class="text-gray-600">درس على يد كبار العلماء مثل الإمام الرملي والمحلي، وتميز بالجد والاجتهاد في مختلف الفنون.</p>
+                </div>
+                <div class="timeline-item mb-12 pl-8 pr-8 relative">
+                    <h3 class="text-xl font-bold text-orange-700">مرحلة التأليف</h3>
+                    <p class="text-gray-600">بدأ في تأليف مصنفاته العظيمة التي أصبحت عمدة في المذهب الشافعي، وأشهرها "مغني المحتاج" و "الإقناع".</p>
+                </div>
+                <div class="timeline-item mb-12 pl-8 pr-8 relative">
+                    <h3 class="text-xl font-bold text-orange-700">تصدره للتدريس</h3>
+                    <p class="text-gray-600">أصبح من كبار المدرسين في عصره، واجتمع حوله طلاب العلم من كل مكان لينهلوا من معارفه.</p>
+                </div>
+                <div class="timeline-item pl-8 pr-8 relative">
+                    <h3 class="text-xl font-bold text-orange-700">977 هـ / 1570 م</h3>
+                    <p class="text-gray-600">توفي في القاهرة بعد حياة حافلة بالعلم والتعليم، وترك خلفه إرثًا علميًا خالدًا.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-orange-900 text-white p-4 text-center mt-12">
+        <p class="text-sm font-light">تصميم وتطوير بواسطة <span class="font-bold text-500x1 text-orange-300">حمزة أنس بمساعدة الذكاء الاصطناعي Gemini </span></p>
+       
+    </footer>
+
+    <script>  
+    document.addEventListener('DOMContentLoaded', function() {
+        const books = [
+            { title: 'مغني المحتاج إلى معرفة معاني ألفاظ المنهاج', category: 'fiqh', desc: 'أشهر كتبه، وهو شرح لمنهاج الطالبين للإمام النووي، ويعد من أهم كتب الشافعية.' },
+            { title: 'الإقناع في حل ألفاظ أبي شجاع', category: 'fiqh', desc: 'شرح متميز على متن الغاية والتقريب لأبي شجاع، وهو من الكتب المعتمدة في المذهب.' },
+            { title: 'السراج المنير في الإعانة على معرفة بعض معاني كلام ربنا الحكيم الخبير', category: 'tafsir', desc: 'كتاب تفسير للقرآن الكريم، يجمع بين التفسير بالرأي والتفسير بالمأثور.' },
+            { title: 'شرح شواهد قطر الندى', category: 'other', desc: 'كتاب في النحو وإعراب الشواهد الشعرية الواردة في كتاب قطر الندى لابن هشام.' },
+            { title: 'فتح الخالق المالك', category: 'fiqh', desc: 'شرح على ألفية ابن مالك في الفقه الشافعي.'},
+            { title: 'الأنوار السنية', category: 'other', desc: 'كتاب يتعلق بالعلوم الروحانية والأخلاق.'}
+        ];
+
+        const booksGrid = document.getElementById('books-grid');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const worksChartCanvas = document.getElementById('worksChart');
+
+        function renderBooks(filter = 'all') {
+            booksGrid.innerHTML = '';
+            const filteredBooks = books.filter(book => filter === 'all' || book.category === filter);
+            
+            filteredBooks.forEach(book => {
+                const categoryMap = {
+                    fiqh: { text: 'فقه', color: 'bg-blue-100 text-blue-800' },
+                    tafsir: { text: 'تفسير', color: 'bg-green-100 text-green-800' },
+                    other: { text: 'متنوع', color: 'bg-purple-100 text-purple-800' }
+                };
+                const catInfo = categoryMap[book.category];
+
+                const bookCard = `
+                    <div class="work-card bg-amber-50 p-6 rounded-lg border border-amber-200 transition-transform transform hover:-translate-y-1" data-category="${book.category}">
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="text-lg font-bold text-orange-900">${book.title}</h4>
+                            <span class="text-xs font-semibold px-2 py-1 rounded-full ${catInfo.color}">${catInfo.text}</span>
+                        </div>
+                        <p class="text-gray-600 text-sm">${book.desc}</p>
+                    </div>
+                `;
+                booksGrid.innerHTML += bookCard;
+            });
+        }
+
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterBtns.forEach(b => b.classList.remove('active', 'bg-orange-500', 'text-white'));
+                btn.classList.add('active', 'bg-orange-500', 'text-white');
+                renderBooks(btn.dataset.filter);
+            });
+        });
+
+        function renderChart() {
+            const counts = books.reduce((acc, book) => {
+                acc[book.category] = (acc[book.category] || 0) + 1;
+                return acc;
+            }, {});
+
+            const data = {
+                labels: ['فقه', 'تفسير', 'متنوع'],
+                datasets: [{
+                    label: 'عدد المؤلفات',
+                    data: [counts.fiqh || 0, counts.tafsir || 0, counts.other || 0],
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.7)',
+                        'rgba(16, 185, 129, 0.7)',
+                        'rgba(168, 85, 247, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(37, 99, 235, 1)',
+                        'rgba(5, 150, 105, 1)',
+                        'rgba(147, 51, 234, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+
+            new Chart(worksChartCanvas, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    family: "'Cairo', sans-serif",
+                                    size: 14
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        renderBooks();
+        renderChart();
+
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active', link.getAttribute('href').substring(1) === entry.target.id);
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        sections.forEach(section => observer.observe(section));
+
+        const mobileNav = document.getElementById('mobile-nav');
+        mobileNav.addEventListener('change', (e) => {
+            window.location.hash = e.target.value;
+        });
+
+    });
+    </script>
+</body>
+</html>
+
