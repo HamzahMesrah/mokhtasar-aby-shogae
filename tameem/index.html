@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تميم الداري: راهب أهل عصره</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals with Muted Teal -->
+    <!-- Application Structure Plan: تم تصميم التطبيق ليكون بمثابة صفحة سيرة ذاتية تفاعلية. الهيكل المعتمد هو هيكل مقطعي موضوعي (بطاقة تعريفية، قصة الإسلام، مواقف بارزة، العبادة، والمصادر) مع شريط تنقل علوي ثابت لتسهيل الاستكشاف غير الخطي. تم اختيار هذا النهج لتمكين المستخدم من استيعاب المعلومات بشكل مجزأ ومنظم بدلاً من عرضها كنص طويل. التفاعل الرئيسي يتمثل في نظام التبويبات في قسم "أبرز المواقف" لعرض القصص المختلفة بشكل منفصل ومركز، ومخطط زمني تفاعلي يلخص حياته بصريًا. الهدف هو تحويل السيرة النصية إلى تجربة استكشافية جذابة. -->
+    <!-- Visualization & Content Choices: 
+        1. معلومات البطاقة التعريفية -> الهدف: إعلام سريع -> طريقة العرض: بطاقات HTML/Tailwind منسقة -> التفاعل: لا يوجد، فقط عرض واضح. التبرير: تقديم لمحة سريعة وموجزة عن هويته.
+        2. قصة إسلامه ومواقفه -> الهدف: تنظيم وعرض قصصي -> طريقة العرض: نظام تبويبات (Tabs) -> التفاعل: النقر على التبويبات لإظهار/إخفاء المحتوى -> التبرير: تقسيم المحتوى الطويل إلى أجزاء قابلة للاستيعاب، مما يمنع إرهاق المستخدم ويشجع على الاستكشاف. الطريقة: Vanilla JS.
+        3. الخط الزمني لحياته -> الهدف: تلخيص زمني -> طريقة العرض: مخطط شريطي أفقي (Bar Chart) -> التفاعل: تلميحات (Tooltips) عند المرور فوق الأحداث -> التبرير: تقديم نظرة بصرية سريعة لمسار حياته، وهو أسلوب أكثر جاذبية من قائمة التواريخ. المكتبة: Chart.js (Canvas).
+        4. سمات العبادة -> الهدف: إبراز صفاته -> طريقة العرض: بطاقات إحصائية بارزة -> التفاعل: تأثيرات بسيطة عند المرور -> التبرير: لفت الانتباه إلى جوانب عبادته وتقواه بشكل مؤثر ومباشر. الطريقة: HTML/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+
+        *{
+            padding: 10px;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .active-tab {
+            border-bottom-color: #0d9488;
+            color: #0d9488;
+            font-weight: 600;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-teal-700">تميم الداري</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4 space-x-reverse">
+                        <a href="#profile" class="text-stone-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">البطاقة التعريفية</a>
+                        <a href="#islam" class="text-stone-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">قصة إسلامه</a>
+                        <a href="#moments" class="text-stone-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">أبرز المواقف</a>
+                        <a href="#worship" class="text-stone-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">عبادته وزهده</a>
+                        <a href="#timeline" class="text-stone-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">خط زمني</a>
+                        <a href="#sources" class="text-stone-600 hover:text-teal-600 px-3 py-2 rounded-md text-sm font-medium">المصادر</a>
+                    </div>
+                </div>
+                 <div class="md:hidden">
+                    <select id="mobile-nav" class="bg-white border border-stone-300 text-stone-700 text-sm rounded-lg focus:ring-teal-500 focus:border-teal-500 block w-full p-2.5">
+                        <option value="#profile">البطاقة التعريفية</option>
+                        <option value="#islam">قصة إسلامه</option>
+                        <option value="#moments">أبرز المواقف</option>
+                        <option value="#worship">عبادته وزهده</option>
+                        <option value="#timeline">خط زمني</option>
+                        <option value="#sources">المصادر</option>
+                    </select>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <div class="text-center mb-12">
+            <h2 class="text-4xl md:text-5xl font-bold text-teal-800">تميم بن أوس الداري</h2>
+            <p class="mt-4 text-lg text-stone-600">راهب أهل عصره، وصاحب أشهر قصة عن الدجال</p>
+        </div>
+
+        <section id="profile" class="py-10">
+            <h3 class="text-2xl font-bold text-center text-teal-700 mb-8">البطاقة التعريفية</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <h4 class="font-semibold text-lg text-stone-700 mb-2">الاسم الكامل</h4>
+                    <p class="text-teal-800">تميم بن أوس بن خارجة الداري</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <h4 class="font-semibold text-lg text-stone-700 mb-2">الكنية والنسب</h4>
+                    <p class="text-teal-800">أبو رقية، من قبيلة لخم</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <h4 class="font-semibold text-lg text-stone-700 mb-2">سنة إسلامه</h4>
+                    <p class="text-teal-800">سنة 9 هـ</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg text-center transform hover:scale-105 transition-transform duration-300">
+                    <h4 class="font-semibold text-lg text-stone-700 mb-2">سنة وفاته</h4>
+                    <p class="text-teal-800">سنة 40 هـ في فلسطين</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="islam" class="py-10 bg-teal-50 rounded-lg mt-12">
+            <div class="max-w-4xl mx-auto text-center">
+                 <h3 class="text-2xl font-bold text-teal-700 mb-4">قصة إسلامه</h3>
+                 <p class="text-stone-700 leading-relaxed">كان تميم الداري نصرانيًا من أهل فلسطين. وفد على النبي محمد صلى الله عليه وسلم في المدينة المنورة مع وفد من قومه سنة 9 هجرية، فأعلن إسلامه وحسن إسلامه. كان معروفًا بعبادته وعلمه قبل الإسلام، وبعده أصبح منارة في العبادة والزهد ورواية الحديث. سكن المدينة ثم انتقل إلى الشام بعد مقتل عثمان بن عفان رضي الله عنه.</p>
+            </div>
+        </section>
+
+        <section id="moments" class="py-10 mt-12">
+            <h3 class="text-2xl font-bold text-center text-teal-700 mb-8">أبرز المواقف والأثر</h3>
+            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-8">
+                هنا نستعرض بعضًا من أبرز المحطات والمواقف الخالدة في حياة تميم الداري رضي الله عنه، والتي تركت أثرًا باقيًا في تاريخ الإسلام. تنقل بين التبويبات لاستكشاف كل قصة.
+            </p>
+            <div class="max-w-4xl mx-auto">
+                <div class="border-b border-stone-200">
+                    <nav class="-mb-px flex space-x-6 space-x-reverse justify-center" aria-label="Tabs">
+                        <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-stone-500 hover:text-teal-600 hover:border-teal-300 active-tab" data-tab="tab1">حديث الجساسة والدجال</button>
+                        <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-stone-500 hover:text-teal-600 hover:border-teal-300" data-tab="tab2">إضاءة المساجد</button>
+                        <button class="tab-btn whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-stone-500 hover:text-teal-600 hover:border-teal-300" data-tab="tab3">رواية الحديث</button>
+                    </nav>
+                </div>
+                <div class="mt-8">
+                    <div id="tab1" class="tab-content active">
+                        <h4 class="font-bold text-xl text-teal-800 mb-3">قصته مع الدجال</h4>
+                        <p class="text-stone-700 leading-relaxed">
+                            أشهر ما يُعرف به تميم الداري هو حديث الجساسة، وهو حديث طويل روته فاطمة بنت قيس عن النبي صلى الله عليه وسلم، الذي نقله بدوره عن تميم الداري. يروي فيه تميم أنه ركب البحر مع ثلاثين رجلًا، فتاهت بهم السفينة شهرًا حتى وصلوا إلى جزيرة. هناك التقوا بدابة عظيمة كثيفة الشعر تُدعى "الجساسة"، والتي أرشدتهم إلى رجل عظيم الخلقة موثق بالسلاسل في دير. دار بينهم حوار، وكشف لهم هذا الرجل أنه المسيح الدجال، وسألهم عن أمور هي من علامات خروجه. كانت هذه القصة تصديقًا لما كان يخبر به النبي أصحابه عن الدجال، فحدّث بها على المنبر فرحًا وسرورًا.
+                        </p>
+                    </div>
+                    <div id="tab2" class="tab-content">
+                        <h4 class="font-bold text-xl text-teal-800 mb-3">أول من أسرج في المسجد</h4>
+                        <p class="text-stone-700 leading-relaxed">
+                            يُعتبر تميم الداري أول من أدخل نظام الإضاءة إلى المسجد النبوي. قبل ذلك، كان المسجد يُضاء بجريد النخل. وعندما قدم تميم من الشام، أحضر معه قناديل وزيتًا وحبالًا، وعلقها في المسجد ليلة الجمعة. وعندما دخل النبي صلى الله عليه وسلم ورأى المسجد مضاءً، سُرّ بذلك وسأل عمن فعل هذا، فأخبروه أنه تميم الداري. فدعا له النبي قائلًا: "نوّرت مسجدنا، نوّر الله عليك". ومن هنا انتشرت عادة إضاءة المساجد بالقناديل.
+                        </p>
+                    </div>
+                    <div id="tab3" class="tab-content">
+                        <h4 class="font-bold text-xl text-teal-800 mb-3">مكانته في رواية الحديث</h4>
+                        <p class="text-stone-700 leading-relaxed">
+                            رغم أنه لم يروِ الكثير من الأحاديث مقارنة بغيره من الصحابة، إلا أن الأحاديث التي رواها كانت ذات أهمية كبيرة، وأشهرها حديث الجساسة. روى له أصحاب الكتب الستة، وبلغ مجموع مروياته في كتب الحديث حوالي 18 حديثًا. وهذا يدل على تثبّت النبي صلى الله عليه وسلم من روايته، وثقة الصحابة والتابعين فيه، مما يعطيه مكانة خاصة بين رواة الحديث.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="worship" class="py-10 bg-white rounded-lg shadow-lg mt-12">
+            <h3 class="text-2xl font-bold text-center text-teal-700 mb-8">عبادته وزهده</h3>
+            <p class="text-center text-stone-600 max-w-3xl mx-auto mb-8">
+                اشتهر تميم الداري بكثرة العبادة والتهجد، حتى لُقّب بـ "راهب أهل عصره" و"عابد أهل فلسطين". هذه بعض الملامح من عبادته الفريدة.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center max-w-5xl mx-auto">
+                <div class="bg-stone-50 p-6 rounded-lg border border-stone-200">
+                    <span class="text-4xl font-bold text-teal-600">آية واحدة</span>
+                    <p class="mt-2 text-stone-600">قام ليلة كاملة يردد آية واحدة ويبكي: "أَمْ حَسِبَ الَّذِينَ اجْتَرَحُوا السَّيِّئَاتِ أَن نَّجْعَلَهُمْ كَالَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ".</p>
+                </div>
+                <div class="bg-stone-50 p-6 rounded-lg border border-stone-200">
+                    <span class="text-4xl font-bold text-teal-600">ختمة قرآن</span>
+                    <p class="mt-2 text-stone-600">كان من الذين يختمون القرآن الكريم في ركعة واحدة، دليلًا على طول قيامه وتدبره.</p>
+                </div>
+                <div class="bg-stone-50 p-6 rounded-lg border border-stone-200">
+                    <span class="text-4xl font-bold text-teal-600">ألف ركعة</span>
+                    <p class="mt-2 text-stone-600">روي عنه أنه كان يصلي ألف ركعة في اليوم والليلة، وكان من أعبد الناس وأكثرهم تهجدًا.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="timeline" class="py-10 mt-12">
+            <h3 class="text-2xl font-bold text-center text-teal-700 mb-8">خط زمني لحياته</h3>
+            <div class="chart-container">
+                <canvas id="lifeTimelineChart"></canvas>
+            </div>
+        </section>
+
+        
+    <footer class="bg-white mt-12">
+        <div class="container mx-auto py-4 px-4 sm:px-6 lg:px-8 text-center text-stone-500">
+            <p>تصميم وتطوير بواسطة <mask style="color: #0d9488;">حمزة أنس بمساعدة الذكاء الاصطناعي Gemini</mask> </p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const target = document.getElementById(tab.dataset.tab);
+
+                    tabs.forEach(t => t.classList.remove('active-tab'));
+                    tab.classList.add('active-tab');
+
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    target.classList.add('active');
+                });
+            });
+
+            const mobileNav = document.getElementById('mobile-nav');
+            mobileNav.addEventListener('change', function() {
+                window.location.href = this.value;
+            });
+
+            const ctx = document.getElementById('lifeTimelineChart').getContext('2d');
+            const lifeTimelineChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['الوفود إلى المدينة وإعلانه الإسلام', 'إضاءة المسجد النبوي', 'انتقاله إلى الشام', 'وفاته في فلسطين'],
+                    datasets: [{
+                        label: 'السنة الهجرية',
+                        data: [9, 9, 35, 40],
+                        backgroundColor: [
+                            'rgba(15, 118, 110, 0.6)',
+                            'rgba(13, 148, 136, 0.6)',
+                            'rgba(20, 184, 166, 0.6)',
+                            'rgba(107, 114, 128, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(15, 118, 110, 1)',
+                            'rgba(13, 148, 136, 1)',
+                            'rgba(20, 184, 166, 1)',
+                            'rgba(107, 114, 128, 1)'
+                        ],
+                        borderWidth: 1,
+                        barPercentage: 0.5,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'السنة الهجرية (هـ)',
+                                font: {
+                                    family: 'Cairo',
+                                    size: 14
+                                }
+                            }
+                        },
+                        y: {
+                             ticks: {
+                                font: {
+                                    family: 'Cairo',
+                                    size: 12
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            bodyFont: {
+                                family: 'Cairo'
+                            },
+                            titleFont: {
+                                family: 'Cairo'
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    return `تقريبًا سنة ${context.raw} هـ`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
